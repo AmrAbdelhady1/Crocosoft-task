@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useQuizDetails from "../../hooks/use-quiz-details";
-import { useState } from "react";
+
 import { BASE_URL } from "../../constants";
 
 export default function TakeQuiz() {

@@ -1,11 +1,8 @@
-import { useEffect, useState } from "react";
-
 import FormInput from "./form-input";
 
-import { BASE_URL } from "../../constants";
 import { CirclePlus, CircleX, Trash2 } from "lucide-react";
-import { QuestionAndAnswers } from "../../types/question-and-answers";
 import { Quiz } from "../../types/quiz";
+import useQuizForm from "../../hooks/use-quiz-form";
 
 type QuizFormMenuProps = {
   isOpen: boolean;
@@ -14,227 +11,33 @@ type QuizFormMenuProps = {
   refresh: () => void;
 };
 
-const questionAndAnswersValues = {
-  id: 1,
-  text: "",
-  feedback_true: "",
-  feedback_false: "",
-  answers: [{ id: 1, is_true: true, text: "" }],
-};
-
-const quizDetailsValues = {
-  title: "",
-  url: "",
-  description: "",
-};
-
 export default function QuizFormMenu({
   isOpen,
   closeMenu,
   selectedQuiz,
   refresh,
 }: QuizFormMenuProps) {
-  const [quizDetails, setQuizDetails] = useState(quizDetailsValues);
-  const [questionAndAnswers, setQuestionAndAnswers] = useState<
-    QuestionAndAnswers[]
-  >([questionAndAnswersValues]);
+  const {
+    quizDetails,
+    questionAndAnswers,
+    quizDetailsHandler,
+    onSubmitHandler,
+    questionDetailsHandler,
+    answerDetailsHandler,
+    handleAnswerToggle,
+    addNewQuestionInputsHandler,
+    removeQuestionInputsHandler,
+    removeAnswerInputHandler,
+    addNewAnswerInputHandler,
+  } = useQuizForm(selectedQuiz);
 
-  useEffect(() => {
-    setQuizDetails({
-      title: selectedQuiz?.title ?? "",
-      url: selectedQuiz?.url ?? "",
-      description: selectedQuiz?.description ?? "",
-    });
-    setQuestionAndAnswers(
-      selectedQuiz?.questions_answers ?? [questionAndAnswersValues]
-    );
-  }, [selectedQuiz]);
-
-  function quizDetailsHandler(event: React.ChangeEvent<HTMLInputElement>) {
-    setQuizDetails((prevValue) => ({
-      ...prevValue,
-      [event.target.name]: event.target.value,
-    }));
-  }
-
-  function addNewQuestionInputsHandler() {
-    setQuestionAndAnswers((prevValue) => [
-      ...prevValue,
-      {
-        id: questionAndAnswers.length + 1,
-        text: "",
-        feedback_true: "",
-        feedback_false: "",
-        answers: [{ id: 1, is_true: true, text: "" }],
-      },
-    ]);
-  }
-
-  function addNewAnswerInputHandler(questionId: number) {
-    setQuestionAndAnswers((prevValue) =>
-      prevValue.map((item) =>
-        item.id === questionId
-          ? {
-              ...item,
-              answers: [
-                ...item.answers,
-                {
-                  id: item.answers.length + 1,
-                  is_true: false,
-                  text: "",
-                },
-              ],
-            }
-          : { ...item }
-      )
-    );
-  }
-
-  function removeAnswerInputHandler(
-    questionAndAnswerId: number,
-    answerInputId: number
-  ) {
-    setQuestionAndAnswers((prevValue) => {
-      return prevValue.map((item) => {
-        if (item.id === questionAndAnswerId) {
-          const newAnswerInputs = item.answers.filter(
-            (item) => item.id !== answerInputId
-          );
-          return { ...item, answers: newAnswerInputs };
-        } else return item;
-      });
-    });
-  }
-
-  function questionDetailsHandler(
-    questionAndAnswerId: number,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    setQuestionAndAnswers((prevValue) => {
-      return prevValue.map((item) => {
-        if (item.id === questionAndAnswerId) {
-          return { ...item, [event.target.name]: event.target.value };
-        } else return item;
-      });
-    });
-  }
-
-  function answerDetailsHandler(
-    questionAndAnswerId: number,
-    answerInputId: number,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    setQuestionAndAnswers((prevValue) => {
-      return prevValue.map((item) => {
-        if (item.id === questionAndAnswerId) {
-          return {
-            ...item,
-            answers: item.answers.map((answer) =>
-              answer.id === answerInputId
-                ? { ...answer, [event.target.name]: event.target.value }
-                : { ...answer }
-            ),
-          };
-        } else return item;
-      });
-    });
-  }
-
-  function handleAnswerToggle(questionAndAnswerId: number, answerId: number) {
-    setQuestionAndAnswers((prevValue) => {
-      return prevValue.map((item) => {
-        if (item.id === questionAndAnswerId) {
-          const newAnswers = item.answers.map((ans) => {
-            return { ...ans, is_true: ans.id === answerId };
-          });
-          return { ...item, answers: newAnswers };
-        } else {
-          return item;
-        }
-      });
-    });
-  }
-
-  function removeQuestionInputsHandler(questionId: number) {
-    setQuestionAndAnswers((prevValue) =>
-      prevValue.filter((item) => item.id !== questionId)
-    );
-  }
-
-  async function createNewQuizHandler() {
-    try {
-      const newQuizPayload = {
-        id: Date.now().toString(),
-        title: quizDetails.title,
-        description: quizDetails.description,
-        url: quizDetails.url,
-        created: new Date().toLocaleString(),
-        modified: "",
-        score: null,
-        questions_answers: questionAndAnswers.map((question) => ({
-          id: question.id,
-          text: question.text,
-          feedback_false: question.feedback_false,
-          feedback_true: question.feedback_true,
-          answers: question.answers
-            .filter((answer) => answer.text !== "")
-            .map((answer) => ({
-              id: answer.id,
-              is_true: answer.is_true,
-              text: answer.text,
-            })),
-        })),
-      };
-      await fetch(`${BASE_URL}/quizzes`, {
-        body: JSON.stringify(newQuizPayload),
-        method: "POST",
-      });
-    } catch (error) {
-      console.error(error);
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const isValid = await onSubmitHandler();
+    if (isValid) {
+      closeMenu();
+      refresh();
     }
-  }
-
-  async function editQuizHandler() {
-    try {
-      const editQuizPayload = {
-        id: selectedQuiz?.id,
-        title: quizDetails.title,
-        description: quizDetails.description,
-        url: quizDetails.url,
-        modified: new Date().toLocaleString(),
-        created: selectedQuiz?.created,
-        score: selectedQuiz?.score,
-        questions_answers: questionAndAnswers.map((question) => ({
-          id: question.id,
-          text: question.text,
-          feedback_false: question.feedback_false,
-          feedback_true: question.feedback_true,
-          answers: question.answers
-            .filter((answer) => answer.text !== "")
-            .map((answer) => ({
-              id: answer.id,
-              is_true: answer.is_true,
-              text: answer.text,
-            })),
-        })),
-      };
-      await fetch(`${BASE_URL}/quizzes/${selectedQuiz?.id}`, {
-        body: JSON.stringify(editQuizPayload),
-        method: "PUT",
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function onSubmitHandler() {
-    if (selectedQuiz) {
-      editQuizHandler();
-    } else {
-      createNewQuizHandler();
-    }
-    closeMenu();
-    refresh();
   }
 
   return (
@@ -255,7 +58,7 @@ export default function QuizFormMenu({
         />
       </div>
 
-      <div className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <FormInput
           label="Title"
           name="title"
@@ -362,11 +165,11 @@ export default function QuizFormMenu({
         >
           Add New Question
         </button>
-      </div>
 
-      <button onClick={onSubmitHandler} className="btn w-full">
-        Save
-      </button>
+        <button type="submit" className="btn w-full">
+          Save
+        </button>
+      </form>
     </div>
   );
 }

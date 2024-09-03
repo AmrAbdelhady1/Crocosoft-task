@@ -7,20 +7,21 @@ const useQuizzes = () => {
   const [isLoading, setIsloading] = useState<boolean>(false);
 
   const fetchAllQuizzes = async () => {
-    setIsloading(true);
     try {
       const response = await fetch(`${BASE_URL}/quizzes`);
       const data = await response.json();
       setQuizzes(data);
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsloading(false);
     }
   };
 
   useEffect(() => {
-    fetchAllQuizzes();
+    setIsloading(true);
+    setTimeout(() => {
+      fetchAllQuizzes();
+      setIsloading(false);
+    }, 1000);
   }, []);
 
   return { quizzes, isLoading, fetchAllQuizzes };
