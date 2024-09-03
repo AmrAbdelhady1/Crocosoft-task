@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-// import { BASE_URL } from "../constants";
+import { BASE_URL } from "../constants";
 import { Quiz } from "../types/quiz";
 
 const useQuizzes = () => {
@@ -8,7 +8,7 @@ const useQuizzes = () => {
 
   const fetchAllQuizzes = async () => {
     try {
-      const response = await fetch(`https://restful-api-vercel.vercel.app/posts`);
+      const response = await fetch(`${BASE_URL}/quizzes`);
       const data = await response.json();
       setQuizzes(data);
     } catch (error) {
