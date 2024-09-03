@@ -8,7 +8,7 @@ const useQuizzes = () => {
 
   const fetchAllQuizzes = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/quizzes`);
+      const response = await fetch(`https://restful-api-vercel.vercel.app/posts`);
       const data = await response.json();
       setQuizzes(data);
     } catch (error) {
