@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 
 import { Quiz } from "../types/quiz";
 import { QuestionAndAnswers } from "../types/question-and-answers";
-import { BASE_URL, validYoutubeUrlRegex } from "../constants";
+import { validYoutubeUrlRegex } from "../constants";
+// import { BASE_URL } from "../constants";
 
 const questionAndAnswersValues = {
   id: 1,
@@ -170,10 +171,14 @@ const useQuizForm = (selectedQuiz: Quiz | undefined) => {
             })),
         })),
       };
-      await fetch(`${BASE_URL}/quizzes`, {
-        body: JSON.stringify(newQuizPayload),
-        method: "POST",
-      });
+      // await fetch(`${BASE_URL}/quizzes`, {
+      //   body: JSON.stringify(newQuizPayload),
+      //   method: "POST",
+      // });
+      const response = localStorage.getItem("quizzes");
+      const data = response ? JSON.parse(response) : [];
+      data.push(newQuizPayload);
+      localStorage.setItem("quizzes", JSON.stringify(data));
     } catch (error) {
       console.error(error);
     }
@@ -203,10 +208,21 @@ const useQuizForm = (selectedQuiz: Quiz | undefined) => {
             })),
         })),
       };
-      await fetch(`${BASE_URL}/quizzes/${selectedQuiz?.id}`, {
-        body: JSON.stringify(editQuizPayload),
-        method: "PUT",
-      });
+      // await fetch(`${BASE_URL}/quizzes/${selectedQuiz?.id}`, {
+      //   body: JSON.stringify(editQuizPayload),
+      //   method: "PUT",
+      // });
+      const response = localStorage.getItem("quizzes");
+      if (response) {
+        const data = JSON.parse(response);
+        const updatedData = data.map((item: Quiz) => {
+          if (item.id === editQuizPayload?.id) {
+            return { ...editQuizPayload };
+          }
+          return item;
+        });
+        localStorage.setItem("quizzes", JSON.stringify(updatedData));
+      }
     } catch (error) {
       console.error(error);
     }

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useQuizDetails from "../../hooks/use-quiz-details";
 
-import { BASE_URL } from "../../constants";
+// import { BASE_URL } from "../../constants";
+import { Quiz } from "../../types/quiz";
 
 export default function TakeQuiz() {
   const { quizDetails } = useQuizDetails();
@@ -32,12 +33,22 @@ export default function TakeQuiz() {
   }
 
   async function updateQuizScoreHandler() {
-    const payload = { ...quizDetails, score };
     try {
-      await fetch(`${BASE_URL}/quizzes/${quizDetails?.id}`, {
-        body: JSON.stringify(payload),
-        method: "PUT",
-      });
+      // await fetch(`${BASE_URL}/quizzes/${quizDetails?.id}`, {
+      //   body: JSON.stringify(payload),
+      //   method: "PUT",
+      // });
+      const response = localStorage.getItem("quizzes");
+      if (response) {
+        const data = JSON.parse(response);
+        const updatedData = data.map((item: Quiz) => {
+          if (item.id === quizDetails?.id) {
+            return { ...quizDetails, score };
+          }
+          return item;
+        });
+        localStorage.setItem("quizzes", JSON.stringify(updatedData));
+      }
     } catch (error) {
       console.error(error);
     }

@@ -1,7 +1,7 @@
 import { QuestionAndAnswers } from "./question-and-answers";
 
 export type Quiz = {
-  id: number;
+  id: string;
   title: string;
   description: string;
   url: string;
