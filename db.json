@@ -1,3 +1,43 @@
 {
-  "quizzes": []
+  "quizzes": [
+    {
+      "id": "1725356446115",
+      "title": "New Quiz",
+      "description": "New Quiz description",
+      "url": "https://www.youtube.com/watch?v=JBl2oUE7Pi4",
+      "modified": "03/09/2024, 12:40:54",
+      "created": "03/09/2024, 12:40:46",
+      "score": 1,
+      "questions_answers": [
+        {
+          "id": 1,
+          "text": "Question 1",
+          "feedback_false": "No",
+          "feedback_true": "Yes",
+          "answers": [
+            {
+              "id": 1,
+              "is_true": true,
+              "text": "Answer 1"
+            },
+            {
+              "id": 2,
+              "is_true": false,
+              "text": "Answer 2"
+            },
+            {
+              "id": 3,
+              "is_true": false,
+              "text": "Answer 3"
+            },
+            {
+              "id": 4,
+              "is_true": false,
+              "text": "Answer 4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
