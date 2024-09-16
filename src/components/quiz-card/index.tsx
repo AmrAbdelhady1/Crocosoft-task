@@ -1,4 +1,3 @@
-import moment from "moment";
 import { Quiz } from "../../types/quiz";
 import { Link } from "react-router-dom";
 
@@ -8,6 +7,7 @@ type CardProps = {
 };
 
 export default function QuizCard({ quiz, onEdit }: CardProps) {
+  console.log(quiz);
   return (
     <div className="flex flex-col space-y-1.5 p-6 rounded-xl border shadow text-gray-500 capitalize">
       <p className="font-semibold leading-none tracking-tight text-xl text-black">
@@ -16,10 +16,10 @@ export default function QuizCard({ quiz, onEdit }: CardProps) {
 
       <p>{quiz.description}</p>
 
-      <p>Created At: {moment(quiz.created).format("DD-MM-YYYY, hh:mmA")}</p>
+      <p>Created At: {quiz.created}</p>
 
       {quiz?.modified && (
-        <p>Modified At: {moment(quiz.modified).format("DD-MM-YYYY, hh:mmA")}</p>
+        <p>Modified At: {quiz.modified}</p>
       )}
 
       {quiz.score !== null && (
